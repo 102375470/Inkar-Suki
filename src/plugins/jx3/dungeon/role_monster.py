@@ -48,7 +48,7 @@ async def get_role_monsters_map(server: str, role_name: str):
     for i in range(len(data["skillList"])):
         skill = data["skillList"][i]
         new = Template(template_role_monsters).render(
-            icon = build_path(ASSETS,["icon",f'{str(skill_map[skill["dwOutSkillID"]])}.png']),
+            icon = build_path(ASSETS,["icon",f'{str(skill_map[str(skill["dwOutSkillID"])])}.png']),
             level = str(skill["nLevel"]),
             name = skill["szSkillName"]
         )
