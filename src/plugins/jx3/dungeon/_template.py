@@ -88,7 +88,7 @@ template_monsters = """
 
 template_role_monsters = """
 <div class="item">
-    <div class="item-icon"><img src="{{ icon }}" class="u-effect"></div>
+    <div class="item-icon"><img src="{{ icon }}"></div>
     <div class="item-level">{{ level }}</div>
     <div class="item-name">{{ name }}</div>
 </div>
