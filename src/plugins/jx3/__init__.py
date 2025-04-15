@@ -33,7 +33,7 @@ async def websocket_client(ws_url: str, headers: dict):
         return
     while True:
         try:
-            async with websockets.connect(ws_url, extra_headers=headers) as websocket:
+            async with websockets.connect(ws_url) as websocket:
                 logger.info("WebSocket connection established")
                 while True:
                     response_text = await websocket.recv()
