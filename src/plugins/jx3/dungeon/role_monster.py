@@ -11,10 +11,10 @@ async def get_role_monsters_map(server: str, role_name: str):
     role_monster_data = (await Request(f"{Config.jx3.api.url}/data/role/monster?server={server}&name={role_name}&token={Config.jx3.api.token}").get()).json()
     data = role_monster_data["data"]
     content = []
-    print(str(len(data["skillList"])))
     for i in range(len(data["skillList"])):
         skill = data["skillList"][i]
         icon = f'https://icon.jx3box.com/icon/{skill["dwOutSkillID"]}.png'
+        print(icon)
         new = Template(template_role_monsters).render(
             icon = icon,
             level = str(skill["nLevel"]),
