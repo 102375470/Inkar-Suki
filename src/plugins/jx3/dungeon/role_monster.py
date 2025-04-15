@@ -14,7 +14,6 @@ async def get_role_monsters_map(server: str, role_name: str):
     for i in range(len(data["skillList"])):
         skill = data["skillList"][i]
         icon = f'https://icon.jx3box.com/icon/{skill["dwOutSkillID"]}.png'
-        print(icon)
         new = Template(template_role_monsters).render(
             icon = icon,
             level = str(skill["nLevel"]),
