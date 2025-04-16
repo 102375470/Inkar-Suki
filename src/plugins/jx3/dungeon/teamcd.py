@@ -9,8 +9,6 @@ from src.const.prompts import PROMPT
 from src.const.path import ASSETS, build_path
 from src.utils.database import db
 from src.utils.database.classes import PersonalSettings, RoleData
-from src.utils.database.player import search_player
-from src.utils.tuilan import generate_timestamp, generate_dungeon_sign
 from src.utils.generate import generate
 from src.utils.network import Request
 from src.templates import HTMLSourceCode, SimpleHTML, get_saohua
@@ -25,25 +23,12 @@ def sort_role_daa(objects: list[RoleData]) -> list[RoleData]:
     server_counts = Counter(obj.serverName for obj in objects)
     return sorted(objects, key=lambda obj: server_counts[obj.serverName], reverse=True)
 
-def build_teamcd_request(guid: str) -> Request:
-    ts = generate_timestamp()
-    params = {
-        "globalRoleId": guid,
-        "sign": generate_dungeon_sign(f"globalRoleId={guid}&ts={ts}"),
-        "ts": ts
-    }
-    return Request("https://m.pvp.xoyo.com/h5/parser/cd-process/get-by-role", params=params)
+def build_teamcd_request(server: str, name: str) -> Request:
+    return Request(f"{Config.jx3.api.url}/data/role/teamCdList?server={server}&name={name}&ticket={Config.jx3.api.ticket}&token={Config.jx3.api.token}")
 
 async def get_zone_record_image(server: str, role: str):
-    data = await search_player(role_name=role, server_name=server)
-    details_data = data.format_jx3api()
-    if details_data["code"] != 200:
-        guid = ""
-        return PROMPT.PlayerNotExist
-    else:
-        guid = details_data["data"]["globalRoleId"]
-    request = build_teamcd_request(guid)
-    data = (await request.post(tuilan=True)).json()
+    request = build_teamcd_request(server,role)
+    data = (await request.get()).json()
     unable = Template(image_template).render(
         image_path = build_path(ASSETS, ["image", "jx3", "cat", "grey.png"])
     )
@@ -108,31 +93,16 @@ def synchronize_keys(data: list[list[dict[str, list[bool]]]]) -> list[list[dict[
 
     
 async def get_mulit_record_image(server: str, roles: list[str]):
-    not_found_roles: list[str] = []
-    found_roles: list[str] = []
-    for each_role in roles:
-        role_data = await search_player(
-            role_name = each_role,
-            server_name = server,
-            local_lookup = True
-        )
-        role_data = role_data.format_jx3api()
-        if role_data["code"] == 404:
-            not_found_roles.append(each_role)
-        else:
-            found_roles.append(role_data["data"]["globalRoleId"])
-    if len(not_found_roles) > 0:
-        return "有以下角色尚未存在于音卡的数据库中，请提交角色！\n" + "\n".join(not_found_roles)
     responses = [
         (await request.post(tuilan=True)).json()
         for request
         in [
-            build_teamcd_request(each_guid)
-            for each_guid
-            in found_roles
+            build_teamcd_request(server, role)
+            for role
+            in roles
         ]
     ]
-    roles_data: list[list[dict[str, list[bool]]]] = [[] for _ in range(len(found_roles))]
+    roles_data: list[list[dict[str, list[bool]]]] = [[] for _ in range(len(roles))]
     num = 0
     for each_response in responses:
         roles_data[num].append(parse_data(each_response))
@@ -172,7 +142,7 @@ async def get_personal_roles_teamcd_image(user_id: int, keyword: str = ""):
         (await request.post(tuilan=True)).json()
         for request
         in [
-            build_teamcd_request(r.globalRoleId)
+            build_teamcd_request(r.serverName,r.roleName)
             for r
             in roles
         ]

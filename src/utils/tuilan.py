@@ -20,10 +20,10 @@ def generate_x_sk(data: str) -> str:
         digestmod=hashlib.sha256
     ).hexdigest()
 
-def generate_dungeon_sign(data: str) -> str:
-    secret: bytes = Config.jx3.api.sign_secret.encode() # 我不知道哦，别问我
-    return hmac.new(
-        secret,
-        msg=data.encode(),
-        digestmod=hashlib.sha1
-    ).hexdigest()
+# def generate_dungeon_sign(data: str) -> str:
+#     secret: bytes = Config.jx3.api.sign_secret.encode() # 我不知道哦，别问我
+#     return hmac.new(
+#         secret,
+#         msg=data.encode(),
+#         digestmod=hashlib.sha1
+#     ).hexdigest()
