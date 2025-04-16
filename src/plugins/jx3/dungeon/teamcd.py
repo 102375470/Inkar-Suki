@@ -35,13 +35,13 @@ async def get_zone_record_image(server: str, role: str):
     available = Template(image_template).render(
         image_path = build_path(ASSETS, ["image", "jx3", "cat", "gold.png"])
     )
-    if data["data"] == []:
+    if data["data"]["data"] == []:
         return "该玩家目前尚未打过任何副本哦~\n注意：10人普通副本会在周五刷新一次。"
     else:
         contents = []
         if data is None:
             return PROMPT.PlayerNotExist
-        for i in data["data"]:
+        for i in data["data"]["data"]:
             images = []
             map_name = i["mapName"]
             map_type = i["mapType"]
@@ -70,7 +70,7 @@ async def get_zone_record_image(server: str, role: str):
     
 def parse_data(data) -> dict:
     result = {}
-    for entry in data["data"]:
+    for entry in data["data"]["data"]:
         map_type = entry["mapType"]
         map_name = entry["mapName"]
         boss_progress = entry["bossProgress"]
@@ -94,7 +94,7 @@ def synchronize_keys(data: list[list[dict[str, list[bool]]]]) -> list[list[dict[
     
 async def get_mulit_record_image(server: str, roles: list[str]):
     responses = [
-        (await request.post(tuilan=True)).json()
+        (await request.get()).json()
         for request
         in [
             build_teamcd_request(server, role)
@@ -139,7 +139,7 @@ async def get_personal_roles_teamcd_image(user_id: int, keyword: str = ""):
         return "您尚未绑定任何角色！请绑定后再尝试查询！"
     roles = sort_role_daa(personal_settings.roles)
     responses = [
-        (await request.post(tuilan=True)).json()
+        (await request.get()).json()
         for request
         in [
             build_teamcd_request(r.serverName,r.roleName)
