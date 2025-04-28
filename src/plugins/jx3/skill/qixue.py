@@ -114,5 +114,5 @@ async def get_qixue(name: str, kungfu: str, season: str = "") -> str | Message |
                 table_body = "\n".join(tables)
             )
         )
-        image = await generate(html, "table", True)
-        return Path(image)
+        image = await generate(html, "table", segment=True)
+        return image
